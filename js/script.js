@@ -1,14 +1,52 @@
-var names = ['Nicholas', 'Connor', 'Edson', 'Jas'];
+var h1 = document.querySelector('h1');
+var time = 5;
+var timer;
 
-var ul = document.querySelector('#name-output');
+function endGame() {
+  clearInterval(timer);
 
-// var section = document.createElement('section');
+  var messageParagraph = document.querySelector('#message');
 
-for (var index = 0; index < names.length; index++) {
-  var li = document.createElement('li');
-
-  // Set the text of the li to our name
-  li.innerText = names[index];
-
-  ul.append(li);
+  messageParagraph.innerText = 'Game Over';
+  // messageParagraph.style.display = 'initial';
+  messageParagraph.classList.remove('hide');
 }
+
+function startGame() {
+  timer = setInterval(function () {
+    // Decrease time by one
+    time--;
+
+    // Set the text of our h1 to 'Time Left: <time>'
+    h1.innerText = 'Time Left: ' + time;
+
+    // If the time variable equals zero, stop the interval 
+    // Pass our interval into the clearInterval function
+    if (time <= 0) {
+      endGame();
+    }
+  }, 1000);
+
+  var questionWrap = document.querySelector('#question-wrap');
+
+  questionWrap.innerHTML =
+    '<div>' + '<h3>' + questions[0].questionText + '</h3>' + '</div>'
+}
+
+startGame();
+
+
+
+
+
+
+
+
+
+
+
+
+// setTimeout(function () {
+//   console.log('timed out');
+// }, 2000);
+// window.setTimeout();
