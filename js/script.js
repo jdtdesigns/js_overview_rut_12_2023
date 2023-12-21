@@ -4,14 +4,37 @@ var startBtn = document.querySelector('#start');
 var startWrap = document.querySelector('.start-wrap');
 var questionWrap = document.querySelector('.question-wrap');
 var timeOutput = document.querySelector('#time-output');
+var scoreWrap = document.querySelector('.score-wrap');
 
 // Store a variable that tracks which question the user is currently on
 var questionIndex = 0;
 // Store a variable that tracks the seconds left
-var time = 60;
+var time = 3;
 // Store a variable that holds the interval
 var timer;
 
+
+// Clears the timer
+// Shows the user's score
+// Resets all values for the user to play the game again
+function endGame() {
+  // Stop(clear) the timer interval
+  clearInterval(timer);
+
+  // Hide the question wrap
+  questionWrap.classList.add('hide');
+  // Select the score output h2
+  var scoreOutput = document.querySelector('#score-output');
+  // Set the score output h2 innerText to their score(time)
+  scoreOutput.innerText = 'Score: ' + (time >= 0 ? time : 0);
+  // Show the score wrap
+  scoreWrap.classList.remove('hide');
+
+  // Reset the time
+  time = 60;
+  // Reset the question index
+  questionIndex = 0;
+}
 
 // Function that checks if the button pressed contains the correct answer
 // Utilizing event delegation to capture the button click
@@ -27,15 +50,38 @@ function checkAnswer(eventObj) {
   if (el.tagName === 'BUTTON') {
     // Store the user's answer
     var userAnswer = el.innerText;
+    // Select the answer alert paragraph
+    var answerAlert = document.querySelector('.answer-alert');
 
     // Determine if the user's answer(button text) is equal to the current question's correct answer
     if (userAnswer === currentQuestionObj.correctAnswer) {
-      console.log('correct!');
-      // If incorrect
+      // Set the text of the answer alert paragraph to 'Correct!'
+      answerAlert.innerText = 'Correct!';
+      // Show the answer alert paragraph
+      answerAlert.classList.add('show');
     } else {
-      console.log('Wrong!');
-      time -= 10;
+      // Show the answer alert with the text of 'Wrong!'
+      answerAlert.innerText = 'Wrong!';
+      // Show the answer alert paragraph
+      answerAlert.classList.add('show');
+      // Decrease the time by 10 seconds
+      time -= 15;
     }
+
+    // Wait 1.5 seconds and then move on to the next question
+    setTimeout(function () {
+      // Hide the answer alert paragraph
+      answerAlert.classList.remove('show');
+      // Increase questionIndex by one
+      questionIndex++;
+      // If questionIndex is equal to questions.length - 1, then endGame
+      if (questionIndex === questions.length) {
+        endGame();
+      } else {
+        // Else call displayQuestion
+        displayQuestion();
+      }
+    }, 1500);
   }
 }
 
@@ -49,6 +95,9 @@ function displayQuestion() {
   var textEl = document.querySelector('.question-text');
   // Set the innerText of our textEl to the currentQuestion questionText property
   textEl.innerText = currentQuestionObj.questionText;
+  // Empty the choices div
+  choicesDiv.innerHTML = '';
+
   // Loop over each choice string in the currentQuestion choices array, and for each string output a button into the choices div with the innerText of the choice string
   for (var i = 0; i < currentQuestionObj.choices.length; i++) {
     //  Create a button element
@@ -61,6 +110,7 @@ function displayQuestion() {
   }
 }
 
+
 // Start the timer countdown and decrease the time variable by one every second until time runs out
 function startCountdown() {
   // Set the inner text of the timeOuput to say 60 seconds
@@ -71,7 +121,11 @@ function startCountdown() {
     // Decrease our time variable by one
     time--;
     // Set the inner text of the timeOutput element to our time variable value
-    timeOutput.innerText = 'Time: ' + time;
+    timeOutput.innerText = 'Time: ' + (time >= 0 ? time : 0);
+    // Check if time is less than or equal to zero and if so, end the game
+    if (time <= 0) {
+      endGame();
+    }
   }, 1000);
 }
 
@@ -86,6 +140,7 @@ function startQuiz() {
   // Start the count down
   startCountdown();
 }
+
 
 // Set a click listener on the parent div of all the choice buttons
 choicesDiv.addEventListener('click', checkAnswer);
