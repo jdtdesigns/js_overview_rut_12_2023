@@ -9,9 +9,11 @@ var scoreWrap = document.querySelector('.score-wrap');
 // Store a variable that tracks which question the user is currently on
 var questionIndex = 0;
 // Store a variable that tracks the seconds left
-var time = 3;
+var time = 60;
 // Store a variable that holds the interval
 var timer;
+// Store a variable that will be used to determine if a user has already clicked answer
+var clicked = false;
 
 
 // Clears the timer
@@ -26,20 +28,23 @@ function endGame() {
   // Select the score output h2
   var scoreOutput = document.querySelector('#score-output');
   // Set the score output h2 innerText to their score(time)
-  scoreOutput.innerText = 'Score: ' + (time >= 0 ? time : 0);
+  scoreOutput.innerText = 'Score: ' + time;
   // Show the score wrap
   scoreWrap.classList.remove('hide');
-
-  // Reset the time
-  time = 60;
-  // Reset the question index
-  questionIndex = 0;
 }
 
 // Function that checks if the button pressed contains the correct answer
 // Utilizing event delegation to capture the button click
 function checkAnswer(eventObj) {
+  console.log('check is called');
   eventObj.stopPropagation();
+
+  // If the user has clicked an answer already, don't let them click another answer until the next question has been displayed
+  if (clicked) {
+    // Exit the function on this line
+    // No code below will run
+    return;
+  }
 
   var currentQuestionObj = questions[questionIndex];
 
@@ -65,8 +70,14 @@ function checkAnswer(eventObj) {
       // Show the answer alert paragraph
       answerAlert.classList.add('show');
       // Decrease the time by 10 seconds
-      time -= 15;
+      // time -= 15;
+      // If time minus 15 is less than zero than set time to zero, else -= 15 from time
+      time = (time - 15) < 0 ? 0 : time - 15;
+
+      console.log(time);
     }
+
+    clicked = true;
 
     // Wait 1.5 seconds and then move on to the next question
     setTimeout(function () {
@@ -80,6 +91,8 @@ function checkAnswer(eventObj) {
       } else {
         // Else call displayQuestion
         displayQuestion();
+        // Allow the user to click an answer again
+        clicked = false;
       }
     }, 1500);
   }
@@ -119,10 +132,15 @@ function startCountdown() {
   // Store the interval to a variable so we can clear or stop it later on
   timer = setInterval(function () {
     // Decrease our time variable by one
-    time--;
+    time = (time - 1) < 0 ? 0 : time - 1;
+    // if ((time - 1) < 0) {
+    //   time = 0;
+    // } else {
+    //   time--;
+    // }
     // Set the inner text of the timeOutput element to our time variable value
-    timeOutput.innerText = 'Time: ' + (time >= 0 ? time : 0);
-    // Check if time is less than or equal to zero and if so, end the game
+    timeOutput.innerText = 'Time: ' + time;
+    // Check if time is less than or equåal to zero and if so, end the game
     if (time <= 0) {
       endGame();
     }
@@ -131,6 +149,10 @@ function startCountdown() {
 
 // Show the first quiz question, hide the start wrap and start the timer
 function startQuiz() {
+  // Reset the time
+  time = 60;
+  // Reset the question index
+  questionIndex = 0;
   // Hide the start wrap
   startWrap.classList.add('hide');
   // Show the question wrap
