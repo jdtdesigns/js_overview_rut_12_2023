@@ -5,6 +5,7 @@ var startWrap = document.querySelector('.start-wrap');
 var questionWrap = document.querySelector('.question-wrap');
 var timeOutput = document.querySelector('#time-output');
 var scoreWrap = document.querySelector('.score-wrap');
+var saveBtn = document.querySelector('#save-score');
 
 // Store a variable that tracks which question the user is currently on
 var questionIndex = 0;
@@ -36,7 +37,6 @@ function endGame() {
 // Function that checks if the button pressed contains the correct answer
 // Utilizing event delegation to capture the button click
 function checkAnswer(eventObj) {
-  console.log('check is called');
   eventObj.stopPropagation();
 
   // If the user has clicked an answer already, don't let them click another answer until the next question has been displayed
@@ -73,8 +73,6 @@ function checkAnswer(eventObj) {
       // time -= 15;
       // If time minus 15 is less than zero than set time to zero, else -= 15 from time
       time = (time - 15) < 0 ? 0 : time - 15;
-
-      console.log(time);
     }
 
     clicked = true;
@@ -133,11 +131,7 @@ function startCountdown() {
   timer = setInterval(function () {
     // Decrease our time variable by one
     time = (time - 1) < 0 ? 0 : time - 1;
-    // if ((time - 1) < 0) {
-    //   time = 0;
-    // } else {
-    //   time--;
-    // }
+
     // Set the inner text of the timeOutput element to our time variable value
     timeOutput.innerText = 'Time: ' + time;
     // Check if time is less than or equåal to zero and if so, end the game
@@ -145,6 +139,33 @@ function startCountdown() {
       endGame();
     }
   }, 1000);
+}
+
+// Get the old scores from localStorage and using the initials and time variable, add a new object to the highscores
+// Then overwrite the old highscores array with the newly updated array
+function saveScore() {
+  // Select the input from the DOM
+  var initialInput = document.querySelector('#initial-input');
+  // Store the user's initials from the input
+  var initialValue = initialInput.value;
+  // Pull the raw highscores array from localStorage
+  var rawData = localStorage.getItem('highscores');
+  // Pull the highscores array if it already exists. If it doesn't, create an empty array
+  var highscores = JSON.parse(rawData) || [];
+
+  // Push a new object to the highscores array
+  highscores.push({
+    // Initials that the user typed into the input box
+    initials: initialValue,
+    // Use the time variable as their score
+    score: time
+  });
+
+  // Store the highscores to localStorage
+  localStorage.setItem('highscores', JSON.stringify(highscores));
+
+  // Navigate the user to the highscores.html file
+  window.location = './highscores.html';
 }
 
 // Show the first quiz question, hide the start wrap and start the timer
@@ -168,7 +189,8 @@ function startQuiz() {
 choicesDiv.addEventListener('click', checkAnswer);
 // Add a click listener to the start button
 startBtn.addEventListener('click', startQuiz);
-
+// Add a click listener to the save button
+saveBtn.addEventListener('click', saveScore);
 
 
 
